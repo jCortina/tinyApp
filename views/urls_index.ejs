@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>TinyApp</title>
+</head>
+<body>
+  <%- include partials/_header.ejs %> 
+  <!-- List of URL's -->
+  <h6>Here are the List of URL's</h6>
+    <ul>
+    <% for (let ulr in templateVars.urls) { %>
+      <li><%= templateVars.urls[ulr] %>
+        <a></a>
+        <% } %> 
+      </li>
+
+    }
+  </ul>
+</body>
+</html>
+
