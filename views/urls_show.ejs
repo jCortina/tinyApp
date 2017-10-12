@@ -7,7 +7,11 @@
   <%- include partials/_header.ejs %>  
   <!-- Show URL and shortened form -->
   <p>URL:<%= longURL %></p> 
-  <p>Short URL<%= shortURL %></p>
-  </ul>
+  <h3>Short URL: <strong><%= shortURL %></strong></strong></h3>
+  <form method="POST" action="/urls/<%= shortURL %>/update"> 
+    <input type="text" name="longURL">
+    <input type="submit" name="update" value="UPDATE">
+  </form>
+</ul>
 </body>
 </html>

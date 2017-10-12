@@ -8,14 +8,20 @@
   <!-- List of URL's -->
   <h6>Here are the List of URL's</h6>
     <ul>
-    <% for (let ulr in templateVars.urls) { %>
-      <li><%= templateVars.urls[ulr] %>
-        <a></a>
-        <% } %> 
-      </li>
-
-    }
-  </ul>
+      <% for (let url in urls) { %>
+        <form method="POST" action="/urls/<%= url %>/delete"> 
+          <li>
+            <%= url %> -> 
+            <a href=<%= urls[url] %>>
+            <%= urls[url] %>
+            </a>
+            <p>root:<%= root %></p>
+            <a href="<%= root %>urls/<%= url %>/update">Edit URL</a>
+            <input type="submit" name="delete">
+          </li>
+        </form>
+     <% } %>
+    </ul>
 </body>
 </html>
 

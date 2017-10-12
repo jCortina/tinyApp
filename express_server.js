@@ -45,18 +45,31 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   console.log("Hello there");
-  let templateVars = { urls: urlDatabase };
+  let templateVars = { urls: urlDatabase, root: domain };
+  console.log(templateVars['root']);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
   res.render("urls_new");
 });
-
+app.post("/urls/:id/delete", (req, res) => {
+  delete urlDatabase[req.params.id];
+  res.redirect(domain + "urls");
+});
+// get methon for update URL page
+app.get("/urls/:id/update", (req, res) => {
+  res.render("urls_show", { shortURL: req.params.id, longURL: urlDatabase[req.params.id] });
+});
+// update a long URL for a given short URL
+app.post("/urls/:id/update", (req, res) => {
+  urlDatabase[req.params.id] = req.body.longURL;
+  res.redirect(domain + "urls"); 
+});
 app.post("/urls", (req, res) => {
   console.log(req.body);  // debug statement to see POST parameters
   // get tiny URL, add it and long one to urlDatabase
-  let tinyString = genRandomString();
+  let tinyString = genRandString();
   urlDatabase[tinyString] = req.body.longURL; 
   // redirect response to urlRoot + tinyString
   res.redirect(domain + 'urls' + tinyString);
