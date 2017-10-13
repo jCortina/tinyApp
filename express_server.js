@@ -25,7 +25,11 @@ function genRandString()  {
 
 
 var express = require("express");
+var cookieParser = require('cookie-parser');
 var app = express();
+
+app.use(cookieParser());
+
 var PORT = process.env.PORT || 8080; // default port 8080
 const domain = "http://localhost:8080/"
 
@@ -38,6 +42,8 @@ var urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+// define template variables as global, initialize to urlDatabse, domain
+var templateVars = {urls: urlDatabase, root: domain};
 
 app.get("/", (req, res) => {
   res.end("Hello!");
@@ -45,8 +51,6 @@ app.get("/", (req, res) => {
 
 app.get("/urls", (req, res) => {
   console.log("Hello there");
-  let templateVars = { urls: urlDatabase, root: domain };
-  console.log(templateVars['root']);
   res.render("urls_index", templateVars);
 });
 
@@ -56,6 +60,21 @@ app.get("/urls/new", (req, res) => {
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect(domain + "urls");
+});
+// post log-in information
+app.post("/login", (req, res) => {
+  //console.log(req.body.username);
+  res.cookie("username", req.body.username);
+  //add cookie to template variables
+  templateVars.username = req.body.username;
+  res.redirect(domain + "urls");  
+});
+// log-out requested - clear cookie, remove from templateVars
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  delete templateVars.username;
+  res.redirect(domain + "/urls");
+  
 });
 // get methon for update URL page
 app.get("/urls/:id/update", (req, res) => {
@@ -93,6 +112,6 @@ app.get("/hello", (req, res) => {
   res.end("<html><body>Hello <b>World</b></body></html>\n");
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`Example app listening on port ${PORT}!`);
 }) 

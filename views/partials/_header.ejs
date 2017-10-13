@@ -4,6 +4,20 @@
   <title>Header</title>
  </head>
  <body>
+   <% if (locals.userid !== undefined) { %>
+    <form method="POST", action="/logout">
+      <h4>
+        <label for="logout"><%= userid %></label>
+        <input type="submit" id="logout" value="LOGOUT">
+      </h4>
+    </form>
+   <% } else { %>
+    <form method="POST", action="/login">
+      <label for="username">User Id</label>
+      <input type="text" id="username" name="username"><br><br><br>
+      <input type="submit" name="submit">
+    </form>
+   <% } %>
  </body>
  </html>
  
