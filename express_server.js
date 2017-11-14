@@ -120,25 +120,38 @@ app.get("/urls", (req, res) => {
   //const user_id = req.cookies.user_id;
   const user_id = "userRandomID";
   //const user_id = null;
-  const loggedIn = "user_id" in req.cookies ? true : false;
+  //const loggedIn = "user_id" in req.cookies ? true : false;
+  const loggedIn = true;
   //get subset of urls for this user
   let userUrls = urlsForUser(user_id, loggedIn);  
   const templateVars = {root: domain, userID: user_id, urls: userUrls, loggedIn: loggedIn, user: users[user_id]};
-  console.log(templateVars);
   res.render("urls_index", templateVars); 
 });
+
 //create a new tiny url -only allow for registered users
-app.get("/urls/new", (req, res) => {
-  if (!("user_id" in req.cookies)) {
+app.get("/urls/:id/new", (req, res) => {
+  const user_id = req.params.id;          //***
+  if (false) {                            //***
+  //if (!("user_id" in req.cookies)) {    //***
     res.redirect(domain + "login");
   } else {
-  res.render("urls_new", users[req.cookies.user_id]);
+  //create a random tinyURL
+  const tinyURL = genRandString();
+  templateVars = {userID: req.params.id, tinyURL: tinyURL};
+  res.render("urls_new", templateVars);
   }
 });
+//post newly created tinyURL/longURL combo - update data
+app.post("/urls/:id/new/:tinyURL", (req, res) => {
+  urlDatabase[req.params.tinyURL] = {userID: req.params.id, url: req.body.longURL};
+  res.redirect(domain + "urls");
+});
+
 app.post("/urls/:id/delete", (req, res) => {
   delete urlDatabase[req.params.id];
   res.redirect(domain + "urls");
 });
+
 // process the Get login
 app.get("/login", (req, res) => {
   res.render("login");
@@ -179,12 +192,13 @@ app.post("/logout", (req, res) => {
 
 });
 // get method for update URL page
-app.get("/urls/:id/update", (req, res) => {
-  res.render("urls_show", { shortURL: req.params.id, longURL: urlDatabase[req.params.id] });
+app.get("/urls/:id/:tinyURL/update", (req, res) => {
+  const templateVars = { userID: req.params.id, tinyURL: req.params.tinyURL, longURL: urlDatabase[req.params.tinyURL].url };
+  res.render("urls_show", templateVars);
 });
 // update a long URL for a given short URL
-app.post("/urls/:id/update", (req, res) => {
-  urlDatabase[req.params.id] = req.body.longURL;
+app.post("/urls/:id/:tinyURL/update", (req, res) => {
+  urlDatabase[req.params.tinyURL].url = req.body.longURL;
   res.redirect(domain + "urls");
 });
 // get request for the registration page
@@ -248,4 +262,4 @@ app.get("/urls.json", (req, res) => {
 
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`Example app listening on port ${PORT}!`);
-})
+});

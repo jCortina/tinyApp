@@ -6,10 +6,10 @@
 <body>
   <%- include partials/_header.ejs %>  
   <!-- Show URL and shortened form -->
-  <p>URL:<%= longURL %></p> 
-  <h3>Short URL: <strong><%= shortURL %></strong></strong></h3>
-  <form method="POST" action="/urls/<%= shortURL %>/update"> 
-    <input type="text" name="longURL">
+  <h2>Update TinyURL:</h2><br><br><br><br> 
+  <h3>Short URL: <strong><%= tinyURL %></strong></strong></h3>
+  <form method="POST" action="/urls/<%=userID%>/<%=tinyURL%>/update"> 
+    <input type="text" name="longURL" style="width: 300px" value="<%=longURL%>">
     <input type="submit" name="update" value="UPDATE">
   </form>
 </ul>
