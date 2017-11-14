@@ -1,22 +1,24 @@
-<DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <title>Header</title>
  </head>
  <body>
-   <% if (locals.user.id) { %>
+   <% if (userID) { %>
     <form method="POST", action="/logout">
-      <h4>
-        <label for="logout"><%= user.id %></label>
+      <h3>
+        <p>Logged in as:  <span><%= userID %></span></p>
         <input type="submit" id="logout" value="LOGOUT">
-      </h4>
+      </h3>
     </form>
     <% } else { %>
-    <h3>
-      <a href="/register">Register</a><br>
-      <a href="/login">Login</a>
-    </h3>
+    <div>   
+      <h2>You are not Loggen In</h2>
+      <h3>
+        <a href="/register">Register</a><br>
+        <a href="/login">Login</a>
+      </h3>
+    </div>
     <% } %>
  </body>
  </html>
- 

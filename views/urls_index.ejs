@@ -4,22 +4,32 @@
   <title>List of URLs</title>
 </head>
 <body>
-  <%- include partials/_header.ejs %> 
-  <!-- List of URL's -->
-  <h4>Here are the List of URL's</h4>
-    <ul>
-      <% for (let url in urls) { %>
-        <form method="POST" action="/urls/<%= url %>/delete"> 
-          <li>
-            <%= url %> -> 
-            <a href=<%= urls[url] %>>
-            <%= urls[url] %>
-            </a>
-            <a href="<%= root %>urls/<%= url %>/update">Edit URL</a>
-            <input type="submit" name="delete">
-          </li>
-        </form>
-     <% } %>
-    </ul>
+  <%- include partials/_header.ejs %>
+  <h2>Here are the List of URL's</h2>
+  
+  <table>
+    <tbody>
+      <form method="POST" action="/urls">
+        <tr>
+          <th>tiny URL</th>
+          <% if (loggedIn) { %>
+            <th>long URL</th>
+          <% } %>
+        </tr>
+        
+        <% for (var url of urls) { %>
+        <tr>
+          <td> <%= url.tinyURL %> </td>
+          <% if (loggedIn) { %>
+            <td><%=url.bigURL%></td>
+            <td><a href="<%=root%>urls/<%=url.tinyURL%>/update">Edit URL</a></td>
+            <td><input type="submit" name="delete" value="Delete URL"></td>
+          <% } %>
+        </tr>
+      <% } %>
+      
+      </form>
+    </tbody>
+  </table>
 </body>
 </html>
