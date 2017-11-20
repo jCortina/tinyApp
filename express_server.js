@@ -245,16 +245,21 @@ app.post("/urls", (req, res) => {
   // redirect response to urlRoot + tinyString
   res.redirect(domain + 'urls' + tinyString);
 });
-app.get("/u/:shortURL", (req, res) => {
-  // let longURL = ...
-  let longURL = urlDatabase[req.params.shortURL];
-  res.redirect(longURL);
-});
 
 app.get("/urls/:id", (req, res) => {
   const user = users[req.session.user_id];
   let templateVars = { user: user, usershortURL: req.params.id, userID: user.id};
   res.render("urls_show", templateVars);
+});
+
+app.get("/u/:id", (req, res)  => {
+  console.log("id: ", req.params.id, " longURL: ", urlDatabase[req.params.id]);
+  if (urlDatabase[req.params.id] == undefined)  {
+    res.status(404);
+    res.send("ERROR - tinyURL does not exist!");
+  } else  {
+    res.redirect(urlDatabase[req.params.id].url);
+  }
 });
 
 app.get("/urls.json", (req, res) => {
