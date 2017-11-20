@@ -7,7 +7,7 @@
    <% if (userID) { %>
     <form method="POST", action="/logout">
       <h3>
-        <p>Logged in as:  <span><%= userID %></span></p>
+        <p>Logged in as:  <span><%= userID %></span><span>   |  email: <%= user.email %></span></p>
         <input type="submit" id="logout" value="LOGOUT">
       </h3>
     </form>

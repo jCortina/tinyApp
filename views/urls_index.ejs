@@ -6,10 +6,10 @@
 <body>
   <%- include partials/_header.ejs %>
   <h2>Here are the List of URL's:</h2>
-  
+
   <table>
     <tbody>
-      
+
       <form method="POST" action="/urls">
         <tr>
           <th>tiny URL</th>
@@ -17,13 +17,13 @@
             <th>long URL</th>
           <% } %>
         </tr>
-        
+
         <% for (var url of urls) { %>
         <tr>
           <td> <%= url.tinyURL %> </td>
           <% if (loggedIn) { %>
             <td><%=url.bigURL%></td>
-            <td><a href="<%=root%>urls/<%=userID%>/<%=url.tinyURL%>/update">Edit URL</a></td>
+            <td><a href="<%=root%>urls/<%=url.tinyURL%>/update">Edit URL</a></td>
             <td><input type="submit" name="delete" value="Delete URL" formaction="/urls/<%=url.tinyURL%>/delete"></td>
           <% } %>
         </tr>
@@ -33,7 +33,7 @@
         <br>
       <% } %>
       </form>
-      
+
     </tbody>
   </table>
 </body>

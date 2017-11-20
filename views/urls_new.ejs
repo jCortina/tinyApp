@@ -4,9 +4,9 @@
   <body style="font-size:20px; padding:50px;">
     <% include partials/_header %>
     <h3>TinyURL  <%=tinyURL%> - Enter Full URL path:</h3>
-    <form action="/urls/<%=userID%>/new/<%=tinyURL%>" method="POST" style="margin:50px;">
+    <form action="/urls/<%=tinyURL%>/new" method="POST" style="margin:50px;">
       <label for="longURL">Enter a URL:</label>
-      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width: 300px; height:25px">
+      <input id="longURL" type="text" name="longURL" placeholder="http://" style="width:650px;height:35px;font-size:25px">
       <input type="submit" value="Submit">
     </form>
   </body>

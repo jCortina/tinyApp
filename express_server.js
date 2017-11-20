@@ -13,7 +13,7 @@ var users = {
   "userRandomID": {
     id: "userRandomID",
     email: "bob@example.com",
-    password: "bobisyouruncle"
+    password: "$2a$10$Lk0nr6azGvO2i9.t9//sz.u3sMEY.WKYB7DFz1rbN/2RGQjUn5eZe"
   },
  "user2RandomID": {
     id: "user2RandomID",
@@ -92,10 +92,13 @@ function urlsForUser(id, loggedIn)  {
 }
 
 var express = require("express");
-var cookieParser = require('cookie-parser');
+var cookieSession = require('cookie-session');
 var app = express();
 
-app.use(cookieParser());
+app.use(cookieSession({
+  name: 'session',
+  keys: ['key1', 'key2'],
+}));
 
 var PORT = process.env.PORT || 8080; // default port 8080
 const domain = "http://localhost:8080/";
@@ -109,7 +112,7 @@ const bcrypt = require('bcrypt');
 
 app.get("/", (req, res) => {
   // if user logged in redirect to /urls, otherwise /login
-  if ("user_id" in req.cookies) {
+  if ("user_id" in req.session) {
     res.redirect(domain + "urls");
   } else {
     res.redirect(domain + "login");
@@ -117,12 +120,11 @@ app.get("/", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  //const user_id = req.cookies.user_id;
-  const user_id = "userRandomID";
-  //const user_id = null;
-  //const loggedIn = "user_id" in req.cookies ? true : false;
-  const loggedIn = true;
+  const user_id = req.session.user_id;  //*
+  const loggedIn = user_id ? true : false;  //*
   //get subset of urls for this user
+  //const user_id = "userRandomID"; //***
+  //const loggedIn = true;          // ***
   let userUrls = urlsForUser(user_id, loggedIn);  
   const templateVars = {root: domain, userID: user_id, urls: userUrls, loggedIn: loggedIn, user: users[user_id]};
   res.render("urls_index", templateVars); 
@@ -130,20 +132,20 @@ app.get("/urls", (req, res) => {
 
 //create a new tiny url -only allow for registered users
 app.get("/urls/:id/new", (req, res) => {
-  const user_id = req.params.id;          //***
-  if (false) {                            //***
-  //if (!("user_id" in req.cookies)) {    //***
+  if (!("user_id" in req.session)) {   
     res.redirect(domain + "login");
   } else {
   //create a random tinyURL
+  const userID = req.session.user_id;
   const tinyURL = genRandString();
-  templateVars = {userID: req.params.id, tinyURL: tinyURL};
+  templateVars = {user: users[req.params.id], userID: userID, tinyURL: tinyURL};
   res.render("urls_new", templateVars);
   }
 });
+
 //post newly created tinyURL/longURL combo - update data
-app.post("/urls/:id/new/:tinyURL", (req, res) => {
-  urlDatabase[req.params.tinyURL] = {userID: req.params.id, url: req.body.longURL};
+app.post("/urls/:id/new/", (req, res) => {
+  urlDatabase[req.params.id] = {userID: req.session.user_id, url: req.body.longURL};
   res.redirect(domain + "urls");
 });
 
@@ -181,32 +183,32 @@ app.post("/login", (req, res) => {
     res.status(403);
     res.send("ERROR: Password is invalid");
   }
-  console.log(user);
-  res.cookie("user_id", user);
-  res.redirect(domain);
+  req.session.user_id = user;
+  res.redirect(domain + "urls");
 });
 // log-out requested - clear cookie, remove from templateVars
 app.post("/logout", (req, res) => {
-  res.clearCookie("user_id");
-  res.redirect(domain);
+  req.session = null;
+  res.redirect(domain + "urls");
 
 });
 // get method for update URL page
-app.get("/urls/:id/:tinyURL/update", (req, res) => {
-  const templateVars = { userID: req.params.id, tinyURL: req.params.tinyURL, longURL: urlDatabase[req.params.tinyURL].url };
+app.get("/urls/:id/update", (req, res) => {
+  const tinyURL = req.params.id;
+  const user = users[req.session.user_id];
+  const templateVars = { user: user, userID: user.id, tinyURL: tinyURL, longURL: urlDatabase[req.params.id].url };
   res.render("urls_show", templateVars);
 });
 // update a long URL for a given short URL
-app.post("/urls/:id/:tinyURL/update", (req, res) => {
-  urlDatabase[req.params.tinyURL].url = req.body.longURL;
+app.post("/urls/:id/update", (req, res) => {
+  urlDatabase[req.params.id].url = req.body.longURL;
   res.redirect(domain + "urls");
 });
 // get request for the registration page
 app.get("/register", (req, res) => {
-  if ("user_id" in req.cookies) {
+  if ("user_id" in req.session) {
     res.redirect(domain + "urls");
   } else {
-    console.log("im here");
   res.render("user_register");
   }
 });
@@ -228,15 +230,13 @@ app.post("/register", (req, res) => {
   }
   //gen user id, add it and email, password to users database
   let newID = genRandString();
-  console.log(newID);
   users[newID] = {};
   users[newID].id = newID;
   users[newID].email = req.body.email;
   let passwrd = req.body.password;
   let passHash = bcrypt.hashSync(passwrd, 10);
   users[newID].password = passHash;
-  res.cookie("user_id", newID);
-  console.log(newID, users[newID].email, passwrd, users[newID].password);
+  req.session.user_id = newID;
   res.redirect(domain + "urls");
 });
 app.post("/urls", (req, res) => {
@@ -252,7 +252,8 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  let templateVars = { shortURL: req.params.id, user: users[req.cookie.user_id]};
+  const user = users[req.session.user_id];
+  let templateVars = { user: user, usershortURL: req.params.id, userID: user.id};
   res.render("urls_show", templateVars);
 });
 
